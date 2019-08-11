@@ -30,7 +30,15 @@ MAIN MENU
 
 	#The solution grid. this contains the locations of all the bombs and numbered cells.
 	# en list-array som innehåller 10 lists som innehåller 9 tal vardera.
-	b = [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+	b = [[0, 0, 0, 0, 0, 0, 0, 0, 0], 
+	[0, 0, 0, 0, 0, 0, 0, 0, 0], 
+	[0, 0, 0, 0, 0, 0, 0, 0, 0], 
+	[0, 0, 0, 0, 0, 0, 0, 0, 0], 
+	[0, 0, 0, 0, 0, 0, 0, 0, 0], 
+	[0, 0, 0, 0, 0, 0, 0, 0, 0], 
+	[0, 0, 0, 0, 0, 0, 0, 0, 0], 
+	[0, 0, 0, 0, 0, 0, 0, 0, 0], 
+	[0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
 	# för att lägga till bomber på random ställen. anropar funktionen "placebomb" 10 ggr
 	for n in range (0, 10):
@@ -44,12 +52,28 @@ MAIN MENU
 			if value == '*': #om det är en bomb, anropa funktionen "updatevalues"
 				updateValues(r, c, b)
 
-	printBoard(b) #printar ut grid:en
+	#The known grid. Sets the variable k to a grid of blank spaces, because nothing is yet known about the grid.
+	k = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 
+	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 
+	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 
+	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 
+	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 
+	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 
+	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 
+	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 
+	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
+
+	printBoard(k) #printar ut grid:en
 
 #Returnerar värdet på en given kordinat, ger info om bomb osv
 def l(r, c, b):
     return b[r][c] #rad och kolumn, returnerar värdet
 
+#Startar en timer
+startTime = time.time()
+
+#Starta spelet!
+play(b, k, startTime)
 
 #funktion som lägger till bomber
 def placeBomb(b):
@@ -125,6 +149,57 @@ def printBoard(b):
 		if not r == 8:
 			print('  ╠═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╣')
 	print('  ╚═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╝') # printar sista raden
+
+
+
+# startar spelet
+def play(b, k, startTime): # tar in solutiongrid, knowngrid och tid
+	c, r = choose(b, k, startTime) # splearen väljer en ruta
+	v = l(r, c, b) #hämtar värdet i den rutan
+
+	#om värdet i rutan är en mina så har man förlorat spelet.
+	if v == '*':
+		printBoard(b) #printar solutiongrid
+		print('You Lose!')
+		print('Time: ' + str(round(time.time() - startTime)) + 's') #printar ut tiden, nutid-starttid
+		playAgain = input('Play again? (Y/N): ').lower() # spela igen?
+		if playAgain == 'y':
+			_ = system('cls') #clear screen	
+			reset()
+		else:
+			quit()
+
+	#om det inte var en mina i rutan, sätter det värdet i known grid (k)
+	k[r][c] = v
+
+	#Om värdet var 0 anropas en funktion som öppnar upp alla närliggande rutor med 0:or.
+	if v == 0:
+		checkZeros(k, b, r, c)
+
+	printBoard(k) #printar ut grid:en igen
+
+	#Kollar om spelaren har vunnit, räknar ut antalet rutor som finns kvar, 10 rutor = vinst
+	squaresLeft = 0
+	for x in range (0, 9):
+		row = k[x]
+		squaresLeft += row.count(' ')
+		squaresLeft += row.count('⚐')
+
+	#vid vinst
+	if squaresLeft == 10:
+		printBoard(b)
+		print('You win!')
+		print('Time: ' + str(round(time.time() - startTime)) + 's')
+		playAgain = input('Play again? (Y/N): ')
+		playAgain = playAgain.lower()
+		if playAgain == 'y':
+			_ = system('cls') #clear screen
+			reset()
+		else:
+			quit()
+
+	#Kör spelet om och om igen!
+	play(b, k, startTime)
 
 
 reset() # ta bort sen
