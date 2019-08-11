@@ -63,19 +63,19 @@ MAIN MENU
 	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 
 	[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
 
-	printBoard(k) #printar ut grid:en
+	printBoard(k) #printar ut grid:en (known grid)
+
+	#Startar en timer
+	startTime = time.time()
+
+	#Starta spelet!
+	play(b, k, startTime)
 
 #Returnerar värdet på en given kordinat, ger info om bomb osv
 def l(r, c, b):
     return b[r][c] #rad och kolumn, returnerar värdet
 
-#Startar en timer
-startTime = time.time()
-
-#Starta spelet!
-play(b, k, startTime)
-
-#funktion som lägger till bomber
+#funktion som lägger till minor
 def placeBomb(b):
 	r = random.randint(0,8) #rad
 	c = random.randint(0,8) #kolumn
@@ -86,7 +86,6 @@ def placeBomb(b):
 		currentRow[c] = '*'
 	else:
 		placeBomb(b) #om platsen redan är upptagen körs funktionen om.
-
 
 # funktionen uppdaterar nummer runt en bomb
 def updateValues(rn, c, b):
@@ -105,7 +104,6 @@ def updateValues(rn, c, b):
         if 9 > c+1:
             if not r[c+1] == '*':
                 r[c+1] += 1
-
     #Same row.    
     r = b[rn]
 
@@ -150,6 +148,72 @@ def printBoard(b):
 			print('  ╠═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╣')
 	print('  ╚═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╝') # printar sista raden
 
+
+#Places a marker in the given location.
+def marker(r, c, k):
+	k[r][c] = '⚐' # ändrar värdet på kordinaten till en flagga
+	printBoard(k) # printar ut known grid igen
+
+# spelaren väljer en kordinat (location)
+def choose(b, k, startTime):
+	# används för att se att användaren har knappat in giltiga kordinater
+	letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' ,'i']
+	numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
+	# en evighetsloop, den fortsätter även om ogiltiga kordinater har knappats in
+	while True:
+		chosen = input('Choose a square (eg. E4) or place a marker (eg. mE4): ').lower()
+
+		# kollar efter en giltig ruta, kollar m, nummer, bokstäver och jämför med de 2 arrayerna här ovanför.
+		# om man vill lägga en flagga
+		if len(chosen) == 3 and chosen[0] == 'm' and chosen[1] in letters and chosen[2] in numbers:
+			c, r = (ord(chosen[1]))-97, int(chosen[2]) # ord = returns the ASCII value 
+			marker(r, c, k) #sätter en flagga in known grid i rätt kordinater
+			play(b, k, startTime) # går tillbaka till spelet
+			break 
+		# om man vill öppna en ruta, returnerar kordinaten till play
+		elif len(chosen) == 2 and chosen[0] in letters and chosen[1] in numbers: 
+			return (ord(chosen[0]))-97, int(chosen[1])
+		# om man skrivit fel så loopas bara frågan.
+		else: choose(b, k, startTime)
+
+#När en 0:a hittas i en ruta så öppnas alla 0:or runt den upp.
+def zeroProcedure(r, c, k, b):
+
+    #Row above
+    if r-1 > -1:
+        row = k[r-1]
+        if c-1 > -1: row[c-1] = l(r-1, c-1, b)
+        row[c] = l(r-1, c, b)
+        if 9 > c+1: row[c+1] = l(r-1, c+1, b)
+
+    #Same row
+    row = k[r]
+    if c-1 > -1: row[c-1] = l(r, c-1, b)
+    if 9 > c+1: row[c+1] = l(r, c+1, b)
+
+    #Row below
+    if 9 > r+1:
+        row = k[r+1]
+        if c-1 > -1: row[c-1] = l(r+1, c-1, b)
+        row[c] = l(r+1, c, b)
+        if 9 > c+1: row[c+1] = l(r+1, c+1, b)
+
+
+# om värdet är 0 öppnas alla närliggande rutor med 0:or
+def checkZeros(k, b, r, c):
+	oldGrid = copy.deepcopy(k) #gör en kopia av known grid (k)
+	zeroProcedure(r, c, k, b) # kör funktionen "zeroprocedure" som öppnar rutorna
+	if oldGrid == k: # kollar om oldgrid är samma som known grid, isåfall har inget ändrats och det är färdigt.
+		return # återgår till play
+
+	while True: # loopar genom varje ruta i known grid, öppnar upp rutor i known grid
+		oldGrid = copy.deepcopy(k)
+		for x in range (9):
+			for y in range (9):
+				if l(x, y, k) == 0:
+					zeroProcedure(x, y, k, b)
+		if oldGrid == k: # kollar om oldgrid är samma som known grid, isåfall har inget ändrats och det är färdigt.
+			return # återgår till play
 
 
 # startar spelet
