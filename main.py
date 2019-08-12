@@ -1,18 +1,18 @@
 
-import random, time, copy #importerar dessa paket
-from os import system #till clear screen
-from termcolor import cprint
+import random, time, copy # random mina, visar speltid osv.
+from os import system # till clear screen
+from termcolor import cprint # till textfärg, används tillsammans med colorama.
 import colorama
 
-colorama.init()
+colorama.init() # för att textfärg ska fungera.
 
-#introduktion när spelet startar
+#introduktion när spelet startar.
 print()
 cprint('Welcome to MineSweeper!', 'red')
 cprint('=============================', 'red')
 print()
 
-# runs every time we want a new game, resets all the variables, printar main menu.
+# Printar menyn och reset:ar allt varje gång ett nytt spel ska startas.
 def reset():
 	print('''
 MAIN MENU
@@ -36,9 +36,9 @@ MAIN MENU
 	elif choice == 'Q':
 		quit()
 
-	elif choice != 'P': #om man inte trycker P eller I
+	elif choice != 'P': #om man inte trycker P, Q eller I
 		_ = system('cls') #clear screen
-		reset()
+		reset() # startar om
 
 	#The solution grid. this contains the locations of all the bombs and numbered cells.
 	# en list-array som innehåller 10 lists som innehåller 9 tal vardera.
@@ -52,7 +52,7 @@ MAIN MENU
 	[0, 0, 0, 0, 0, 0, 0, 0, 0], 
 	[0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-	# för att lägga till bomber på random ställen. anropar funktionen "placebomb" 10 ggr
+	# för att lägga till minor på random ställen. anropar funktionen "placebomb" 10 ggr
 	for n in range (0, 10):
 		placeBomb(b)
 
@@ -264,7 +264,7 @@ def play(b, k, startTime): # tar in solutiongrid, knowngrid och tid
 		squaresLeft += row.count(' ')
 		squaresLeft += row.count('⚐')
 
-	#vid vinst
+	# vid vinst
 	if squaresLeft == 10:
 		printBoard(b)
 		print('You win!')
@@ -277,8 +277,7 @@ def play(b, k, startTime): # tar in solutiongrid, knowngrid och tid
 		else:
 			quit()
 
-	#Kör spelet om och om igen!
+	# Spelet loopar.
 	play(b, k, startTime)
 
-
-reset() # ta bort sen
+reset() # anropar reset funktion.
