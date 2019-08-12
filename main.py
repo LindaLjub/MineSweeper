@@ -1,8 +1,16 @@
+
 import random, time, copy #importerar dessa paket
 from os import system #till clear screen
+from termcolor import cprint
+import colorama
+
+colorama.init()
 
 #introduktion när spelet startar
-print('Welcome to MineSweeper!')
+print()
+cprint('Welcome to MineSweeper!', 'red')
+cprint('=============================', 'red')
+print()
 
 # runs every time we want a new game, resets all the variables, printar main menu.
 def reset():
@@ -12,6 +20,7 @@ MAIN MENU
 
 -> for instructions type 'I'
 -> to play type 'P'
+-> to quit type 'Q'
 ''')
 
 	#input, tar in ett värde och gör det till stor bokstav.
@@ -23,6 +32,9 @@ MAIN MENU
 
 		print(open('instructions.txt', 'r').read())
 		input('Press [Enter] when ready to play.')
+
+	elif choice == 'Q':
+		quit()
 
 	elif choice != 'P': #om man inte trycker P eller I
 		_ = system('cls') #clear screen
@@ -137,16 +149,17 @@ def printBoard(b):
 	_ = system('cls') #clear screen
 
 	#print grid, första delen ändras inte
-	print('    A   B   C   D   E   F   G   H   I')
-	print('  ╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗')
+	print()
+	print('      A   B   C   D   E   F   G   H   I')
+	print('    ╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗')
 
 	#denna del uppdateras utefter hur spelaren har spelat
 	#hämtar rutornas värde genom funktionen "l(r, c, b)"
 	for r in range (0, 9):
-		print(r,'║',l(r,0,b),'║',l(r,1,b),'║',l(r,2,b),'║',l(r,3,b),'║',l(r,4,b),'║',l(r,5,b),'║',l(r,6,b),'║',l(r,7,b),'║',l(r,8,b),'║')
+		print(' ', r,'║',l(r,0,b),'║',l(r,1,b),'║',l(r,2,b),'║',l(r,3,b),'║',l(r,4,b),'║',l(r,5,b),'║',l(r,6,b),'║',l(r,7,b),'║',l(r,8,b),'║')
 		if not r == 8:
-			print('  ╠═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╣')
-	print('  ╚═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╝') # printar sista raden
+			print('    ╠═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╣')
+	print('    ╚═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╝') # printar sista raden
 
 
 #Places a marker in the given location.
@@ -161,7 +174,7 @@ def choose(b, k, startTime):
 	numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
 	# en evighetsloop, den fortsätter även om ogiltiga kordinater har knappats in
 	while True:
-		chosen = input('Choose a square (eg. E4) or place a marker (eg. mE4): ').lower()
+		chosen = input('  To quit type "Q". \n  Choose a square (eg. E4) or place a marker (eg. mE4): ').lower()
 
 		# kollar efter en giltig ruta, kollar m, nummer, bokstäver och jämför med de 2 arrayerna här ovanför.
 		# om man vill lägga en flagga
@@ -173,6 +186,8 @@ def choose(b, k, startTime):
 		# om man vill öppna en ruta, returnerar kordinaten till play
 		elif len(chosen) == 2 and chosen[0] in letters and chosen[1] in numbers: 
 			return (ord(chosen[0]))-97, int(chosen[1])
+		elif chosen == 'q':
+			quit()
 		# om man skrivit fel så loopas bara frågan.
 		else: choose(b, k, startTime)
 
